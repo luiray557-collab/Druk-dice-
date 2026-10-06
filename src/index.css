@@ -1,0 +1,48 @@
+@import "tailwindcss";
+
+@layer base {
+  body {
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  }
+}
+
+.font-cinzel {
+  font-family: 'Cinzel', serif;
+}
+
+.font-tibetan {
+  font-family: 'Noto Serif Tibetan', 'Noto Sans Tibetan', serif;
+}
+
+@keyframes dice-shake {
+  0% { transform: translate(0, 0) rotate(0deg) scale(1); }
+  20% { transform: translate(-8px, 6px) rotate(-14deg) scale(1.08); }
+  40% { transform: translate(8px, -6px) rotate(12deg) scale(0.95); }
+  60% { transform: translate(-6px, -4px) rotate(-8deg) scale(1.05); }
+  80% { transform: translate(6px, 4px) rotate(10deg) scale(1.02); }
+  100% { transform: translate(0, 0) rotate(0deg) scale(1); }
+}
+
+.animate-dice-shake {
+  animation: dice-shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) infinite;
+}
+
+@keyframes dice-slam {
+  0% { transform: translateY(-40px) scale(1.25); opacity: 0.8; }
+  60% { transform: translateY(4px) scale(0.92); }
+  80% { transform: translateY(-2px) scale(1.03); }
+  100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+.animate-dice-slam {
+  animation: dice-slam 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes gold-pulse {
+  0%, 100% { box-shadow: 0 0 15px rgba(245, 158, 11, 0.2); }
+  50% { box-shadow: 0 0 28px rgba(245, 158, 11, 0.45); }
+}
+
+.animate-gold-glow {
+  animation: gold-pulse 2.4s ease-in-out infinite;
+}

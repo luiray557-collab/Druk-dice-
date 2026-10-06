@@ -1,0 +1,69 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "Authenticated player profile and synced gaming state",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "maxLength": 128 },
+        "email": { "type": "string", "maxLength": 256 },
+        "displayName": { "type": "string", "maxLength": 100 },
+        "photoURL": { "type": "string", "maxLength": 1024 },
+        "walletBalance": { "type": "number" },
+        "weeklyStaked": { "type": "number" },
+        "matchesPlayed": { "type": "number" },
+        "matchesWon": { "type": "number" },
+        "updatedAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["uid", "email"]
+    },
+    "BankAccount": {
+      "title": "BankAccount",
+      "description": "Linked Bhutanese digital banking account",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 64 },
+        "bankId": { "type": "string", "maxLength": 32 },
+        "bankName": { "type": "string", "maxLength": 100 },
+        "appCode": { "type": "string", "maxLength": 32 },
+        "accountNumber": { "type": "string", "maxLength": 32 },
+        "accountHolder": { "type": "string", "maxLength": 100 },
+        "isDefault": { "type": "boolean" }
+      },
+      "required": ["id", "bankId", "bankName", "accountNumber"]
+    },
+    "MatchRecord": {
+      "title": "MatchRecord",
+      "description": "Cryptographically verified match record",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 64 },
+        "player1Id": { "type": "string", "maxLength": 128 },
+        "player2Id": { "type": "string", "maxLength": 128 },
+        "player1Name": { "type": "string", "maxLength": 100 },
+        "player2Name": { "type": "string", "maxLength": 100 },
+        "entryFee": { "type": "number" },
+        "totalPot": { "type": "number" },
+        "winnerId": { "type": "string", "maxLength": 128 },
+        "securityHash": { "type": "string", "maxLength": 128 },
+        "status": { "type": "string", "enum": ["waiting", "active", "completed"] },
+        "createdAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["id", "player1Id", "entryFee", "totalPot", "status"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "User profile documents with wallet state"
+    },
+    "/users/{userId}/bankAccounts/{accountId}": {
+      "schema": "BankAccount",
+      "description": "Linked Bhutanese bank accounts owned by the user"
+    },
+    "/matches/{matchId}": {
+      "schema": "MatchRecord",
+      "description": "Completed or active multiplayer/random matches with tamper-proof validation"
+    }
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "Druk Dice - འབྲུག་ ཤོ་",
+  "description": "Authentic Bhutanese dice wagering match game with traditional Sho calls, mBOB/B-NGUL wallet stakes, 5-round matches, and Himalayan aesthetics.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

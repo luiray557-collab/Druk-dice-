@@ -1,0 +1,79 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global Catch-all Deny (Pillar 1)
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions (Pillar 2 & 3)
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // User Profile: Strict owner access with data shape validation
+    match /users/{userId} {
+      allow get: if isOwner(userId) && isValidId(userId);
+      allow list: if false; // Disallow user table scanning
+
+      allow create: if isOwner(userId) && isValidId(userId)
+        && incoming().uid == request.auth.uid
+        && incoming().email is string && incoming().email.size() <= 256
+        && (!('walletBalance' in incoming()) || (incoming().walletBalance is number && incoming().walletBalance >= 0))
+        && (!('weeklyStaked' in incoming()) || (incoming().weeklyStaked is number && incoming().weeklyStaked >= 0 && incoming().weeklyStaked <= 7000));
+
+      allow update: if isOwner(userId) && isValidId(userId)
+        && incoming().uid == existing().uid
+        && (!('walletBalance' in incoming()) || (incoming().walletBalance is number && incoming().walletBalance >= 0))
+        && (!('weeklyStaked' in incoming()) || (incoming().weeklyStaked is number && incoming().weeklyStaked >= 0 && incoming().weeklyStaked <= 7000));
+
+      allow delete: if false; // Protect user accounts from deletion exploits
+
+      // Subcollection: Bank Accounts
+      match /bankAccounts/{accountId} {
+        allow read: if isOwner(userId) && isValidId(accountId);
+        allow write: if isOwner(userId) && isValidId(accountId);
+      }
+
+      // Subcollection: Transactions
+      match /transactions/{txId} {
+        allow read: if isOwner(userId) && isValidId(txId);
+        allow create: if isOwner(userId) && isValidId(txId);
+        allow update, delete: if false; // Financial ledger immutability
+      }
+    }
+
+    // Match Records: Multi-player & Random Matching records
+    match /matches/{matchId} {
+      allow get: if isSignedIn() && isValidId(matchId);
+      allow list: if isSignedIn();
+
+      allow create: if isSignedIn() && isValidId(matchId)
+        && incoming().player1Id == request.auth.uid
+        && incoming().entryFee is number && incoming().entryFee > 0 && incoming().entryFee <= 5000
+        && incoming().totalPot is number && incoming().totalPot == incoming().entryFee * 2;
+
+      allow update: if isSignedIn() && isValidId(matchId)
+        && (existing().player1Id == request.auth.uid || existing().player2Id == request.auth.uid || !('player2Id' in existing()));
+
+      allow delete: if false;
+    }
+  }
+}
